@@ -1,6 +1,8 @@
 import csv
 from flask import Flask, render_template, request, send_file
 import os
+from tkinter import Tk
+from tkinter.filedialog import asksaveasfilename
 
 app = Flask(__name__)
 
@@ -30,8 +32,11 @@ def convert():
         # Remove the temporary file
         os.remove(file_path)
 
-        # Send the converted file as a download
-        return send_file(facebook_csv_file, as_attachment=True, attachment_filename='converted.csv')
+        # Prompt user to save the converted file
+        save_file_dialog(facebook_csv_file)
+
+        # Return a response to the browser
+        return 'Conversion complete. Please save the converted file.'
     
     return 'Error: No file provided.'
 
@@ -62,6 +67,20 @@ def convert_ebay_to_facebook(ebay_csv_file, facebook_csv_file):
                     'Condition': condition,
                     'Image URL': image_url
                 })
+
+def save_file_dialog(file_path):
+    """
+    Displays a file dialog to save the converted file.
+
+    Args:
+        file_path (str): Path to the converted file.
+    """
+    Tk().withdraw()  # Hide the Tkinter main window
+    save_path = asksaveasfilename(defaultextension=".csv", filetypes=[("CSV Files", "*.csv")])
+
+    # If a save path is chosen, rename the file
+    if save_path:
+        os.rename(file_path, save_path)
 
 if __name__ == '__main__':
     app.run()
